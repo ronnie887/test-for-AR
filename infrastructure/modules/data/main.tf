@@ -1,6 +1,6 @@
 # 1. Cloud Storage
 resource "google_storage_bucket" "app_bucket" {
-  name     = "${var.project_id}-data-bucket-887" # Must be globally unique
+  name     = "${var.project_id}-data-bucket-8871" # Must be globally unique
   location = var.region
   project  = var.project_id
   
@@ -10,7 +10,7 @@ resource "google_storage_bucket" "app_bucket" {
 
 # 2. Secret Manager
 resource "google_secret_manager_secret" "app_secret" {
-  secret_id = "example-app-secret-887"
+  secret_id = "example-app-secret-8871"
   project   = var.project_id
   
   replication {
@@ -68,7 +68,7 @@ resource "google_secret_manager_secret_version" "secret_version_data" {
 
 # 4. BigQuery (Regional)
 resource "google_bigquery_dataset" "dataset" {
-  dataset_id                  = "app_analytics_887"
+  dataset_id                  = "app_analytics_8871"
   friendly_name               = "App Analytics"
   description                 = "Regional dataset for application analytics"
   location                    = var.region # Using the same region as the app
