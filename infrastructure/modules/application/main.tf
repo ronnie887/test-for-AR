@@ -60,22 +60,24 @@ resource "google_cloud_run_v2_service" "dashboard" {
 }
 
 # 4. Cloud Run Job (Batch Data Ingestion)
-resource "google_cloud_run_v2_job" "data_ingestion" {
-  name     = "data-ingestion-job"
-  location = var.region
-  project  = var.project_id
-
-  template {
-    template {
-      containers {
-        image = "us-docker.pkg.dev/cloudrun/container/job-sample:latest" # Placeholder
-        command = ["python", "ingest.py"]
-        
-        env {
-          name  = "GCP_PROJECT"
-          value = var.project_id
-        }
-      }
-    }
-  }
-}
+# 4. Cloud Run Job (Batch Data Ingestion) - COMMENTED OUT
+# Uncomment after Artifact Registry is created and image is pushed
+# resource "google_cloud_run_v2_job" "data_ingestion" {
+#   name     = "data-ingestion-job"
+#   location = var.region
+#   project  = var.project_id
+# 
+#   template {
+#     template {
+#       containers {
+#         image = "us-docker.pkg.dev/cloudrun/container/job-sample:latest" # Placeholder
+#         command = ["python", "ingest.py"]
+#         
+#         env {
+#           name  = "GCP_PROJECT"
+#           value = var.project_id
+#         }
+#       }
+#     }
+#   }
+# }
