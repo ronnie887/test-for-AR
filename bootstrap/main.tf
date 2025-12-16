@@ -71,6 +71,14 @@ resource "google_service_account_iam_member" "workload_identity_user" {
   member = "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_pool.workload_identity_pool_id}/attribute.repository/${var.github_repo}"
 }
 
+# 6. Grant Editor Role to the Service Account
+# This is required for the Service Account to provision resources
+resource "google_project_iam_member" "sa_editor" {
+  project = var.project_id
+  role    = "roles/editor"
+  member  = "serviceAccount:${google_service_account.github_actions_sa.email}"
+}
+
 # --- OUTPUTS ---
 # Use these values in your GitHub Actions YAML
 output "workload_identity_provider" {
