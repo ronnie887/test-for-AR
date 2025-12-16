@@ -1,0 +1,55 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: 'auth-test-proj-481009' # TODO: Verify or make dynamic
+  REGION: 'us-central1'
+  # Update these with the Output values from the 'bootstrap' step
+  WIF_PROVIDER: 'projects/823761666836/locations/global/workloadIdentityPools/github-pool-v3/providers/github-provider'
+  WIF_SERVICE_ACCOUNT: 'github-actions-sa@auth-test-proj-481009.iam.gserviceaccount.com'
+
+jobs:
+  terraform_apply:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infrastructure
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -var="project_id=${{ env.PROJECT_ID }}" -var="iap_client_id=${{ secrets.IAP_CLIENT_ID }}" -var="iap_client_secret=${{ secrets.IAP_CLIENT_SECRET }}"
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve -var="project_id=${{ env.PROJECT_ID }}" -var="iap_client_id=${{ secrets.IAP_CLIENT_ID }}" -var="iap_client_secret=${{ secrets.IAP_CLIENT_SECRET }}"
