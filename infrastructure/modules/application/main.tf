@@ -14,6 +14,8 @@ resource "google_cloud_run_v2_service" "web_app" {
   project  = var.project_id
   ingress  = "INGRESS_TRAFFIC_ALL"
 
+  deletion_protection = false # Allow Terraform to destroy this service
+
   template {
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello" # Placeholder image
@@ -36,6 +38,8 @@ resource "google_cloud_run_v2_service" "dashboard" {
   location = var.region
   project  = var.project_id
   ingress  = "INGRESS_TRAFFIC_ALL"
+
+  deletion_protection = false # Allow Terraform to destroy this service
 
   template {
     containers {
