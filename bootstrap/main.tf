@@ -73,9 +73,23 @@ resource "google_service_account_iam_member" "workload_identity_user" {
 
 # 6. Grant Editor Role to the Service Account
 # This is required for the Service Account to provision resources
+resource "google_project_service" "storage" {
+  project = var.project_id
+  service = "storage.googleapis.com"
+}
+
+# 6. Grant Roles to the Service Account
+# Roles/Editor for general access
 resource "google_project_iam_member" "sa_editor" {
   project = var.project_id
   role    = "roles/editor"
+  member  = "serviceAccount:${google_service_account.github_actions_sa.email}"
+}
+
+# Explicit Storage Admin (fixes "bucket doesn't exist" errors sometimes)
+resource "google_project_iam_member" "sa_storage_admin" {
+  project = var.project_id
+  role    = "roles/storage.admin"
   member  = "serviceAccount:${google_service_account.github_actions_sa.email}"
 }
 
