@@ -79,7 +79,7 @@ resource "google_compute_url_map" "default" {
   project         = var.project_id
 
   host_rule {
-    hosts        = ["dashboard.${var.domain}", "dashboard.*"]
+    hosts        = ["dashboard.${var.domain}"]
     path_matcher = "dashboard"
   }
 
