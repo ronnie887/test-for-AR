@@ -84,6 +84,7 @@ resource "google_project_iam_member" "sa_editor" {
 resource "google_storage_bucket" "tf_state" {
   name          = "${var.project_id}-tfstate"
   location      = "US" # Multi-region for high availability
+  project       = var.project_id
   force_destroy = true # Allow destroying bucket even if it has state files (for cleanup)
   
   versioning {
