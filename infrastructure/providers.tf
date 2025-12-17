@@ -5,6 +5,11 @@ terraform {
       version = ">= 4.0"
     }
   }
+
+  backend "gcs" {
+    bucket = "auth-test-proj-481009-tfstate" # Must match bootstrap output
+    prefix = "infrastructure"
+  }
 }
 
 provider "google" {

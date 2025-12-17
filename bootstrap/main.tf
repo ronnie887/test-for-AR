@@ -79,6 +79,20 @@ resource "google_project_iam_member" "sa_editor" {
   member  = "serviceAccount:${google_service_account.github_actions_sa.email}"
 }
 
+# 7. Terraform State Bucket
+# Stores the state file remotely so GitHub Actions doesn't "forget" resources
+resource "google_storage_bucket" "tf_state" {
+  name          = "${var.project_id}-tfstate"
+  location      = "US" # Multi-region for high availability
+  force_destroy = true # Allow destroying bucket even if it has state files (for cleanup)
+  
+  versioning {
+    enabled = true
+  }
+  
+  uniform_bucket_level_access = true
+}
+
 # --- OUTPUTS ---
 # Use these values in your GitHub Actions YAML
 output "workload_identity_provider" {
