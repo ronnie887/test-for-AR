@@ -80,6 +80,14 @@ resource "google_project_service" "storage" {
   service = "storage.googleapis.com"
 }
 
+# CHANGE THIS: Grant Owner role instead of Editor
+# This is strictly required for the FIRST-TIME creation of the App Engine application.
+resource "google_project_iam_member" "sa_owner" {
+  project = var.project_id
+  role    = "roles/owner"  # Changed from roles/editor
+  member  = "serviceAccount:${google_service_account.github_actions_sa.email}"
+}
+
 # 6. Grant Roles to the Service Account
 # Roles/Editor for general access
 resource "google_project_iam_member" "sa_editor" {
