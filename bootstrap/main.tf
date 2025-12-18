@@ -110,6 +110,23 @@ resource "google_storage_bucket" "tf_state" {
   uniform_bucket_level_access = true
 }
 
+# Enable App Engine Admin API (Required for google_app_engine_application)
+resource "google_project_service" "appengine" {
+  project = var.project_id
+  service = "appengine.googleapis.com"
+  
+  # Recommended: Prevent disabling the API on destroy to avoid accidental data loss
+  disable_on_destroy = false 
+}
+
+# Enable Cloud Scheduler API (Required for google_cloud_scheduler_job)
+resource "google_project_service" "cloudscheduler" {
+  project = var.project_id
+  service = "cloudscheduler.googleapis.com"
+  
+  disable_on_destroy = false
+}
+
 # --- OUTPUTS ---
 # Use these values in your GitHub Actions YAML
 output "workload_identity_provider" {
