@@ -7,6 +7,20 @@ resource "google_artifact_registry_repository" "docker_repo" {
   project       = var.project_id
 }
 
+# --- SERVICE ACCOUNT FOR RUNTIME ---
+resource "google_service_account" "app_runtime_sa" {
+  project      = var.project_id
+  account_id   = "app-runtime-sa"
+  display_name = "Service Account for Cloud Run Runtime"
+}
+
+# Grant GitHub Actions SA permission to act as the runtime SA
+resource "google_service_account_iam_member" "github_actions_act_as_runtime" {
+  service_account_id = google_service_account.app_runtime_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:github-actions-sa@${var.project_id}.iam.gserviceaccount.com"
+}
+
 # 2. Cloud Run Service - Web Application
 resource "google_cloud_run_v2_service" "web_app" {
   name     = "web-app"
@@ -29,6 +43,7 @@ resource "google_cloud_run_v2_service" "web_app" {
         container_port = 8080
       }
     }
+    service_account = google_service_account.app_runtime_sa.email
   }
 }
 
@@ -60,6 +75,7 @@ resource "google_cloud_run_v2_service" "dashboard" {
         value = var.project_id
       }
     }
+    service_account = google_service_account.app_runtime_sa.email
   }
 }
 
@@ -73,7 +89,7 @@ resource "google_secret_manager_secret_iam_member" "census_api_access" {
   project   = var.project_id
   secret_id = "census-api-key"
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${data.google_project.current.number}-compute@developer.gserviceaccount.com"
+  member    = "serviceAccount:${google_service_account.app_runtime_sa.email}"
 }
 
 # 4. Cloud Run Job (Batch Data Ingestion)
@@ -121,6 +137,7 @@ resource "google_cloud_run_v2_job" "data_ingestion" {
           }
         }
       }
+      service_account = google_service_account.app_runtime_sa.email
     }
   }
 }
