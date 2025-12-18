@@ -3,9 +3,9 @@ variable "project_id" {
   type        = string
 }
 
-variable "github_repo" {
-  description = "The GitHub repository in 'org/repo' format (e.g., 'octocat/hello-world')"
-  type        = string
+variable "github_repos" {
+  description = "List of GitHub repositories in 'org/repo' format"
+  type        = list(string)
 }
 
 # 1. Enable necessary APIs (optional, but recommended)
@@ -50,7 +50,7 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
   }
 
   # 2. Add this CONDITION using 'assertion.repository' (NOT attribute.repository)
-  attribute_condition = "assertion.repository == '${var.github_repo}'"
+  attribute_condition = "assertion.repository in ${jsonencode(var.github_repos)}"
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
@@ -64,11 +64,13 @@ data "google_project" "project" {
 }
 
 resource "google_service_account_iam_member" "workload_identity_user" {
+  for_each = toset(var.github_repos)
+
   service_account_id = google_service_account.github_actions_sa.name
   role               = "roles/iam.workloadIdentityUser"
 
   # This restricts access specifically to YOUR repository
-  member = "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_pool.workload_identity_pool_id}/attribute.repository/${var.github_repo}"
+  member = "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_pool.workload_identity_pool_id}/attribute.repository/${each.value}"
 }
 
 # 6. Grant Editor Role to the Service Account
