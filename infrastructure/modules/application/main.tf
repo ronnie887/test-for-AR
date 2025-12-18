@@ -103,24 +103,25 @@ resource "google_cloud_run_v2_job" "data_ingestion" {
 }
 
 # 5. Cloud Scheduler (Trigger every 10 minutes)
-resource "google_cloud_scheduler_job" "job_trigger" {
-  name             = "trigger-data-ingestion"
-  description      = "Triggers the data ingestion Cloud Run Job every 10 minutes"
-  schedule         = "*/10 * * * *"
-  time_zone        = "Etc/UTC"
-  attempt_deadline = "320s"
-  region           = var.region
-  project          = var.project_id
-
-  http_target {
-    http_method = "POST"
-    uri         = "https://${var.region}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${var.project_id}/jobs/${google_cloud_run_v2_job.data_ingestion.name}:run"
-
-    oauth_token {
-      service_account_email = "${var.project_id}-compute@developer.gserviceaccount.com" # Default Compute SA
-    }
-  }
-  
-  # Ensure the Cloud Run Job is fully created first
-  depends_on = [google_cloud_run_v2_job.data_ingestion]
-}
+# TEMPORARILY COMMENTED OUT - Will enable after confirming App Engine exists
+# resource "google_cloud_scheduler_job" "job_trigger" {
+#   name             = "trigger-data-ingestion"
+#   description      = "Triggers the data ingestion Cloud Run Job every 10 minutes"
+#   schedule         = "*/10 * * * *"
+#   time_zone        = "Etc/UTC"
+#   attempt_deadline = "320s"
+#   region           = var.region
+#   project          = var.project_id
+#
+#   http_target {
+#     http_method = "POST"
+#     uri         = "https://${var.region}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${var.project_id}/jobs/${google_cloud_run_v2_job.data_ingestion.name}:run"
+#
+#     oauth_token {
+#       service_account_email = "${var.project_id}-compute@developer.gserviceaccount.com" # Default Compute SA
+#     }
+#   }
+#   
+#   # Ensure the Cloud Run Job is fully created first
+#   depends_on = [google_cloud_run_v2_job.data_ingestion]
+# }
