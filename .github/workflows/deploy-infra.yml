@@ -22,10 +22,10 @@ permissions:
   id-token: write
 
 env:
-  PROJECT_ID: 'auth-test-proj-481009' # TODO: Verify or make dynamic
+  PROJECT_ID: 'auth-test-proj-481009'
   REGION: 'us-central1'
-  WIF_PROVIDER: 'projects/823761666836/locations/global/workloadIdentityPools/github-pool-v3/providers/github-provider'
-  WIF_SERVICE_ACCOUNT: 'github-actions-sa@auth-test-proj-481009.iam.gserviceaccount.com'
+  WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+  WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
 jobs:
   terraform_apply:
