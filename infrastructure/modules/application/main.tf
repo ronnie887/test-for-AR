@@ -75,8 +75,8 @@ resource "google_cloud_run_v2_job" "data_ingestion" {
   template {
     template {
       containers {
-        # Image will be pushed by GitHub Actions
-        image = "us-central1-docker.pkg.dev/${var.project_id}/app-docker-repo/us-census-job:latest"
+        # Initial placeholder image. Real image is deployed by us-census-job CI/CD.
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
         
         # Override the command (optional, but CMD in Dockerfile works)
         # command = ["python", "uscensusapi2020andabove.py"]
