@@ -95,6 +95,13 @@ resource "google_project_iam_member" "sa_storage_admin" {
   member  = "serviceAccount:${google_service_account.github_actions_sa.email}"
 }
 
+# App Engine Admin (required for creating App Engine applications)
+resource "google_project_iam_member" "sa_appengine_admin" {
+  project = var.project_id
+  role    = "roles/appengine.appAdmin"
+  member  = "serviceAccount:${google_service_account.github_actions_sa.email}"
+}
+
 # 7. Terraform State Bucket
 # Stores the state file remotely so GitHub Actions doesn't "forget" resources
 resource "google_storage_bucket" "tf_state" {
