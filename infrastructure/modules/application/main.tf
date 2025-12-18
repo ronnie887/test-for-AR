@@ -64,6 +64,14 @@ resource "google_cloud_run_v2_service" "dashboard" {
 }
 
 # 4. Cloud Run Job (Batch Data Ingestion)
+# Grant Cloud Run service account access to secrets
+resource "google_secret_manager_secret_iam_member" "census_api_access" {
+  project   = var.project_id
+  secret_id = "census-api-key"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${var.project_id}-compute@developer.gserviceaccount.com"
+}
+
 # 4. Cloud Run Job (Batch Data Ingestion)
 resource "google_cloud_run_v2_job" "data_ingestion" {
   name     = "data-ingestion-job"
@@ -89,6 +97,17 @@ resource "google_cloud_run_v2_job" "data_ingestion" {
         env {
           name  = "GCS_BUCKET_NAME"
           value = var.bucket_name
+        }
+        
+        # Census API Key from Secret Manager
+        env {
+          name = "UscensusAPI"
+          value_source {
+            secret_key_ref {
+              secret  = "census-api-key"
+              version = "latest"
+            }
+          }
         }
         
         resources {
