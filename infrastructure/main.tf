@@ -36,7 +36,8 @@ module "application" {
   region     = var.region
   bucket_name = module.data.app_bucket_name
   
-  depends_on = [module.data] # Wait for DB/Secrets
+  # Cloud Scheduler requires App Engine to exist first
+  depends_on = [module.data, google_app_engine_application.app]
 }
 
 # 4. AI Module

@@ -120,4 +120,7 @@ resource "google_cloud_scheduler_job" "job_trigger" {
       service_account_email = "${var.project_id}-compute@developer.gserviceaccount.com" # Default Compute SA
     }
   }
+  
+  # Ensure the Cloud Run Job is fully created first
+  depends_on = [google_cloud_run_v2_job.data_ingestion]
 }
