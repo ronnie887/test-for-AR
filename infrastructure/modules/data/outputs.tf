@@ -1,5 +1,7 @@
-# Output definitions for the data module
-# example:
-# output "db_instance_ip" {
-#   value = google_sql_database_instance.master.ip_address.0.ip_address
-# }
+output "app_bucket_name" {
+  value = google_storage_bucket.app_bucket.name
+}
+
+output "app_secret_id" {
+  value = google_secret_manager_secret.app_secret.secret_id
+}

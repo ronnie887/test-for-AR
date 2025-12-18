@@ -34,6 +34,7 @@ module "application" {
   source     = "./modules/application"
   project_id = var.project_id
   region     = var.region
+  bucket_name = module.data.app_bucket_name
   
   depends_on = [module.data] # Wait for DB/Secrets
 }
