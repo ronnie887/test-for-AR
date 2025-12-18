@@ -29,7 +29,7 @@ resource "google_service_account" "github_actions_sa" {
 # 3. Create the Workload Identity Pool
 resource "google_iam_workload_identity_pool" "github_pool" {
   project                   = var.project_id
-  workload_identity_pool_id = "github-pool-v3"
+  workload_identity_pool_id = "github-pool-v4"
   display_name              = "GitHub Actions Pool"
   description               = "Identity pool for GitHub Actions"
   disabled                  = false
