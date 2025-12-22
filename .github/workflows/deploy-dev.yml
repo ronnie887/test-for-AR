@@ -1,0 +1,72 @@
+name: Deploy Dev Environment
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'environments/dev/**'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform Action to perform'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+        - apply
+        - destroy
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: 'auth-test-proj-481009'
+  REGION: 'us-central1'
+  WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+  WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+jobs:
+  terraform_apply:
+    name: 'Terraform (Dev)'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./environments/dev
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        # Plan for APPLY (Default)
+        if: github.event.inputs.action != 'destroy'
+        run: terraform plan -var="project_id=${{ env.PROJECT_ID }}" -var="region=${{ env.REGION }}" -var="domain=test.ascend.sg" -var="iap_client_id=${{ secrets.IAP_CLIENT_ID }}" -var="iap_client_secret=${{ secrets.IAP_CLIENT_SECRET }}"
+
+      - name: Terraform Apply
+        # Run if push to main OR manual dispatch 'apply'
+        if: github.ref == 'refs/heads/main' && github.event.inputs.action != 'destroy'
+        run: terraform apply -auto-approve -var="project_id=${{ env.PROJECT_ID }}" -var="region=${{ env.REGION }}" -var="domain=test.ascend.sg" -var="iap_client_id=${{ secrets.IAP_CLIENT_ID }}" -var="iap_client_secret=${{ secrets.IAP_CLIENT_SECRET }}"
+
+      - name: Terraform Destroy
+        # ONLY run if manually dispatched with 'destroy'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+        run: terraform destroy -auto-approve -var="project_id=${{ env.PROJECT_ID }}" -var="region=${{ env.REGION }}" -var="domain=test.ascend.sg" -var="iap_client_id=${{ secrets.IAP_CLIENT_ID }}" -var="iap_client_secret=${{ secrets.IAP_CLIENT_SECRET }}"
