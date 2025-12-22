@@ -1,3 +1,11 @@
+# 0. Artifact Registry (For Docker Images)
+module "artifact_registry" {
+  source     = "../../modules/application/artifact_registry"
+  project_id = var.project_id
+  region     = var.region
+  repo_id    = "app-docker-repo"
+}
+
 # 1. Identity Module (Service Accounts)
 module "identity" {
   source     = "../../modules/application/iam"
