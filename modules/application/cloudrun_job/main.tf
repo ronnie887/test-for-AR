@@ -12,6 +12,8 @@ resource "google_cloud_run_v2_job" "ingestion_job" {
   project  = var.project_id
   deletion_protection = false
 
+  depends_on = [google_secret_manager_secret_iam_member.api_access]
+
   template {
     template {
       containers {
